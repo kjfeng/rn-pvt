@@ -1,0 +1,4 @@
+#Tue Aug 25 00:27:55 PDT 2020
+base.0=/Users/feng/Documents/Kevin/AttentivU+etc/rn-pvt/android/app/build/intermediates/dex/debug/mergeDexDebug/out/classes.dex
+path.0=classes.dex
+renamed.0=classes.dex
