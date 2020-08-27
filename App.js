@@ -1,19 +1,20 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, TextInput, Button, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, TextInput, Button, Dimensions, TouchableWithoutFeedback } from 'react-native';
 import Svg, { Circle } from "react-native-svg";
 
 const screenWidth = Math.round(Dimensions.get('window').width);
 const screenHeight = Math.round(Dimensions.get('window').height);
 const NUM_OF_TRIALS = 5;
-var times = [];
 
 export default class App extends React.Component {
-
 
   constructor() {
     super()
     this.state = {
-        pvtMode : 0
+        pvtMode : 0,
+        timerShowing : false,
+        timerValue : 0,
+        timerTapped : false,
     }
   }
 
@@ -21,23 +22,93 @@ export default class App extends React.Component {
 
   }
 
+  showCircle() {
+    return (
+      <View>
+        <Svg width={screenWidth} height={screenHeight}>
+          <Circle
+          fill="red"
+          cx="50%"
+          cy="50%"
+          r={30}
+          />
+        </Svg>
+      </View>
+    );
+  }
+
+  showTimer() {
+    let start = Date.now();
+
+    const timer = setInterval(() => {
+      if (this.state.timerValue > 8000) {
+        clearInterval(timer);
+      }
+      else {
+        this.setState({
+          timerValue : Date.now() - start
+        });
+      }
+    }, 1000);
+
+    return (
+
+      <View>
+        <Text style={styles.timerText}>{this.state.timerValue}</Text>
+        <Button
+          onPress={() => {
+            clearInterval(timer);
+          }}
+          title="TAP"
+          color="#1aad5b"
+          accessibilityLabel="TAP"
+        />
+      </View>
+
+      // <TouchableOpacity
+      //   onPress={() => {
+      //     console.log('timer pressed!')
+      //   }}
+      //   style={styles.fsTap}>
+      //   <View>
+      //   <Text style={{color: 'black'}}>{this.state.timerValue}</Text>
+      //   </View>
+      // </TouchableOpacity>
+
+
+    );
+  }
+
   startView() {
-    if (this.state.pvtMode == 1) {
+    if (this.state.pvtMode == 2) {
       return (
-        <View>
-          <Svg width={screenWidth} height={screenHeight}>
-            <Circle
-            fill="red"
-            cx="50%"
-            cy="50%"
-            r={30}
-            />
-          </Svg>
-
+        <View style={{alignItems: 'center'}}>
+          <Text>Thank you!</Text>
+          <Text>You have completed the PVT test.</Text>
+          <Text>Tap below to return to the home screen</Text>
+          <Text></Text>
+          <Button
+            onPress={this.onHomeButtonPress}
+            title="Home"
+            color="#1aad5b"
+            accessibilityLabel="Home"
+          />
         </View>
-
       );
     }
+
+    if (this.state.pvtMode == 1) {
+      return (
+
+        <View>
+          {this.showTimer()}
+        </View>
+        // <View>
+        //     <Text>{this.state.timerValue}</Text>
+        // </View>
+      );
+    }
+
     else {
       return (
         <View style={{alignItems: 'center'}}>
@@ -48,7 +119,7 @@ export default class App extends React.Component {
           <Text>When you're ready, tap Start</Text>
           <Text></Text>
           <Button
-            onPress={this.onButtonPress}
+            onPress={this.onStartButtonPress}
             title="Start"
             color="#1aad5b"
             accessibilityLabel="Start"
@@ -58,8 +129,17 @@ export default class App extends React.Component {
     }
   }
 
-  onButtonPress = () => {
+  onStartButtonPress = () => {
     this.setState({pvtMode : 1});
+  }
+
+  onHomeButtonPress = () => {
+    this.setState({pvtMode : 0});
+  }
+
+  onTimerTap = () => {
+    this.setState({timerTapped: true});
+    console.log('timer tapped');
   }
 
   render() {
@@ -77,4 +157,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  fsTap: {
+    width: screenWidth,
+    height: screenHeight,
+    backgroundColor: 'red'
+  },
+  timerText: {
+    color: 'black',
+    fontSize: 24,
+  }
 });
