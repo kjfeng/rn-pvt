@@ -12,7 +12,7 @@ export default class App extends React.Component {
     super()
     this.state = {
         pvtMode : 0,
-        timerShowing : false,
+        showTimer : false,
         timerValue : 0,
         timerTapped : false,
     }
@@ -37,11 +37,12 @@ export default class App extends React.Component {
     );
   }
 
-  showTimer() {
+  activateTimer() {
     let start = Date.now();
 
     const timer = setInterval(() => {
-      if (this.state.timerValue > 8000) {
+      // time out after 5s
+      if (this.state.timerValue > 5000) {
         clearInterval(timer);
       }
       else {
@@ -49,17 +50,19 @@ export default class App extends React.Component {
           timerValue : Date.now() - start
         });
       }
-    }, 1000);
+    }, 1);
 
     return (
 
-      <View>
+      <View style={styles.container}>
         <Text style={styles.timerText}>{this.state.timerValue}</Text>
         <Button
-          onPress={() => {
+          onPress={async () => {
             clearInterval(timer);
+            // hold the value there for 1s
+            await sleep(1000);
           }}
-          title="TAP"
+          title="TAP NOW"
           color="#1aad5b"
           accessibilityLabel="TAP"
         />
@@ -75,8 +78,11 @@ export default class App extends React.Component {
       //   </View>
       // </TouchableOpacity>
 
-
     );
+  }
+
+  runOneRound() {
+    return this.showCircle();
   }
 
   startView() {
@@ -98,15 +104,34 @@ export default class App extends React.Component {
     }
 
     if (this.state.pvtMode == 1) {
-      return (
+      setTimeout(() => {
+        // time till circle disappears is random into between 1000 and 4000
+        timeTillCircleGone = 1000 + Math.floor(Math.random() * 3000);
 
-        <View>
-          {this.showTimer()}
-        </View>
-        // <View>
-        //     <Text>{this.state.timerValue}</Text>
-        // </View>
-      );
+        setTimeout(() => {
+          this.setState({showTimer : true});
+          setTimeout(() => {
+            this.setState({showTimer : false});
+          }, 8000);  // always wait 8 seconds before shutting off timer
+        }, timeTillCircleGone);
+      }, 1000);
+
+      if (this.state.showTimer) {
+        return (
+          <View>
+            {this.activateTimer()}
+          </View>
+        );
+      }
+
+      if (!this.state.showTimer) {
+        return (
+          <View>
+            {this.showCircle()}
+          </View>
+        );
+      }
+
     }
 
     else {
