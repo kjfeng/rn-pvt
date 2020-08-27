@@ -12,9 +12,11 @@ export default class App extends React.Component {
     super()
     this.state = {
         pvtMode : 0,
-        showTimer : false,
+        // 0 = circle; 1 = timer; 2 = continue
+        trialScreen : 0,
         timerValue : 0,
         timerTapped : false,
+        // continue: false
     }
   }
 
@@ -37,6 +39,29 @@ export default class App extends React.Component {
     );
   }
 
+  handleContinueButton() {
+    if (this.state.trialScreen == 2) {
+      return (
+        <View>
+          <Button
+            onPress={this.onContinue}
+            title="Continue"
+            color="#1aad5b"
+            accessibilityLabel="Continue"
+          />
+        </View>
+      );
+
+    }
+    else {
+      return (
+        <View>
+
+        </View>
+      );
+    }
+  }
+
   activateTimer() {
     let start = Date.now();
 
@@ -44,23 +69,24 @@ export default class App extends React.Component {
       // time out after 5s
       if (this.state.timerValue > 5000) {
         clearInterval(timer);
+        this.setState({trialScreen : 2});
       }
       else {
         this.setState({
           timerValue : Date.now() - start
         });
       }
-    }, 1);
+    }, 1000);
 
     return (
 
       <View style={styles.container}>
         <Text style={styles.timerText}>{this.state.timerValue}</Text>
         <Button
-          onPress={async () => {
+          onPress={() => {
             clearInterval(timer);
             // hold the value there for 1s
-            await sleep(1000);
+            // await sleep(1000);
           }}
           title="TAP NOW"
           color="#1aad5b"
@@ -79,10 +105,6 @@ export default class App extends React.Component {
       // </TouchableOpacity>
 
     );
-  }
-
-  runOneRound() {
-    return this.showCircle();
   }
 
   startView() {
@@ -104,30 +126,36 @@ export default class App extends React.Component {
     }
 
     if (this.state.pvtMode == 1) {
-      setTimeout(() => {
-        // time till circle disappears is random into between 1000 and 4000
-        timeTillCircleGone = 1000 + Math.floor(Math.random() * 3000);
+      // setTimeout(() => {
+      //   // time till circle disappears is random into between 1000 and 4000
+      //   timeTillCircleGone = 1000 + Math.floor(Math.random() * 3000);
+      //
+      //   setTimeout(() => {
+      //     this.setState({showTimer : true});
+      //     setTimeout(() => {
+      //       this.setState({showTimer : false});
+      //     }, 8000);  // always wait 8 seconds before shutting off timer
+      //   }, timeTillCircleGone);
+      // }, 1000);
 
+      if (this.state.trialScreen == 0) {
+        console.log(this.state);
         setTimeout(() => {
-          this.setState({showTimer : true});
-          setTimeout(() => {
-            this.setState({showTimer : false});
-          }, 8000);  // always wait 8 seconds before shutting off timer
-        }, timeTillCircleGone);
-      }, 1000);
+          this.setState({trialScreen : 1});
+        }, 1000 + Math.floor(Math.random() * 3000));
 
-      if (this.state.showTimer) {
         return (
           <View>
-            {this.activateTimer()}
+            {this.showCircle()}
           </View>
         );
       }
 
-      if (!this.state.showTimer) {
+      else {
         return (
           <View>
-            {this.showCircle()}
+            {this.activateTimer()}
+            {this.handleContinueButton()}
           </View>
         );
       }
@@ -165,6 +193,12 @@ export default class App extends React.Component {
   onTimerTap = () => {
     this.setState({timerTapped: true});
     console.log('timer tapped');
+  }
+
+  onContinue = () => {
+    this.setState({trialScreen : 0});
+    this.setState({timerValue : 0});
+    console.log('set state to 0');
   }
 
   render() {
